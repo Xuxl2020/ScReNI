@@ -1,0 +1,116 @@
+# In[]
+import sys, os
+sys.path.append('/data3/xuxl/CeSpGRN/src/')
+from os.path import exists
+
+import numpy as np
+import pandas as pd
+import time
+
+import matplotlib.pyplot as plt
+
+import g_admm as CeSpGRN
+import kernel
+import warnings
+warnings.filterwarnings("ignore")
+
+from sklearn.decomposition import PCA
+from umap import UMAP
+
+plt.rcParams["font.size"] = 20
+
+# In[]
+def preprocess(counts): 
+    """\
+    Input:
+    counts = (ntimes, ngenes)
+    
+    Description:
+    ------------
+    Preprocess the dataset
+    """
+    # normalize according to the library size
+    
+    libsize = np.median(np.sum(counts, axis = 1))
+    counts = counts / np.sum(counts, axis = 1)[:,None] * libsize
+        
+    counts = np.log1p(counts)
+    return counts
+
+# In[] Read in data
+path = "/data2/xuxl/mmRetina_RPCMG/"
+# count matrix of the shape (ncells, ngenes)
+counts = pd.read_csv(path + "sub.scrna.top500.tran.csv", index_col = 0).values
+annotation = pd.read_csv(path + "CeSpGRN_mmRetina_RPCMG_annotation.csv", index_col = 0)
+ncells, ngenes = counts.shape
+
+print("Raw TimePoints: {}, no.Genes: {}".format(counts.shape[0],counts.shape[1]))
+
+libsize = np.median(np.sum(counts, axis = 1))
+counts = counts / np.sum(counts, axis = 1)[:,None] * libsize
+# the distribution of the original count is log-normal distribution, conduct log transform
+counts = np.log1p(counts)
+
+pca_op = PCA(n_components = 20)
+umap_op = UMAP(n_components = 2, min_dist = 0.8, random_state = 0)
+
+X_pca = pca_op.fit_transform(counts)
+
+# In[] Estimate cell-specific GRNs
+# hyper-parameters
+bandwidth = 0.1
+n_neigh = 20
+lamb = 0.1
+max_iters = 100
+
+# calculate the kernel function
+start_time = time.time()
+K, K_trun = kernel.calc_kernel_neigh(X_pca, k = 5, bandwidth = bandwidth, truncate = True, truncate_param = n_neigh)
+print("number of neighbor being considered: " + str(np.sum(K_trun[int(ncells/2), :] > 0)))
+
+# estimate covariance matrix, output is empir_cov of the shape (ncells, ngenes, ngenes)
+empir_cov = CeSpGRN.est_cov(X = counts, K_trun = K_trun, weighted_kt = True)
+
+# estimate cell-specific GRNs
+cespgrn = CeSpGRN.G_admm_minibatch(X=counts[:, None, :], K=K, pre_cov=empir_cov, batchsize = 120)
+thetas = cespgrn.train(max_iters=max_iters, n_intervals=100, lamb=lamb)
+np.save(file = path +"thetas.gene500.cell400_" + str(bandwidth) + "_" + str(lamb) + "_" + str(n_neigh) + ".npy", arr = thetas) 
+
+path = "/data2/xuxl/mmRetina_RPCMG/NetworksC100/slice/"
+# 保存每个切片
+for i in range(thetas.shape[0]):
+    # 创建DataFrame
+    df = pd.DataFrame(thetas[i])
+    # 保存为CSV文件，确保 i 转换为字符串
+    df.to_csv(f'{path}slice_{i}.csv', index=False)
+
+# R code
+thetas.path = '/data2/xuxl/mmRetina_RPCMG/NetworksC100/slice/'
+dat <- read.csv('/data2/xuxl/mmRetina_RPCMG/sub.scrna.top500.tran.csv', row.names=1)
+mmRetina.gene500.cell400 <- matrix(0, 500, 400)
+colnames(mmRetina.gene500.cell400) <- rownames(dat)
+rownames(mmRetina.gene500.cell400) <- colnames(dat)
+
+Combine_thetas <- function(mmRetina.gene500.cell400, thetas.path){
+  setwd(thetas.path)
+  thetas <- list()
+  cellnames <- colnames(PBMC.gene500.cell400)
+  genenames <- rownames(PBMC.gene500.cell400)
+  for(i in 1:length(cellnames)){
+    print(c(i, cellnames[i]))
+    thetas0 <- read.csv(paste0('slice_',i-1,'.csv'), head=T)
+    thetas0 <- as.matrix(thetas0)
+    colnames(thetas0) <- genenames
+    rownames(thetas0) <- genenames
+    thetas[[i]] <- thetas0
+  }
+  names(thetas) <- cellnames
+  return(thetas)
+}
+
+CeSpGRN.weights <- Combine_thetas(mmRetina.gene500.cell400, thetas.path)
+saveRDS(CeSpGRN.weights, file = paste0(thetas.path, 'mmRetina_gene500.cell400_CeSpGRN_scNetworks.rds') )
+
+
+
+

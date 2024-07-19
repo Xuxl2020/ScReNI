@@ -35,7 +35,7 @@ ScReNI has the following four key steps:
 
 ## News
 
-### Version1.0.0: First version of ScReNI was published!
+### Version 1.0.0: The first version of ScReNI was published!
 
 ### Installation
 
@@ -45,12 +45,12 @@ install.packages('devtools')
 devtools::install_github('Xuxl2020/ScReNI')
 ```
 
-or download source file and install locally
+or download the source file and install it locally
 ```r
 devtools::install_github('path/to/ScReNI.tar.gz')
 ```
 
-To check if ScReNI is installed correctly, run:
+To check if ScReNI is installed correctly, run the following:
 ```r
 library(ScReNI)
 ```

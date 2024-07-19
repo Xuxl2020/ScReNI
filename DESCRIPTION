@@ -8,26 +8,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-Imports: 
-Signac,
-dplyr,
-ggpubr,
-monocle3,
-ggplot2,
-igraph,
-Matrix,
-harmony,
-sctransform,
-GenomeInfoDb,
-EnsDb.Mmusculus.v79,
-ComplexHeatmap,
-IReNA,
-patchwork,
-future
-Depends: 
-    R (>= 4.0),
-    Seurat (5.0.1),
-    SeuratObject (5.0.1),
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

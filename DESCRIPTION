@@ -9,14 +9,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
-
-Signac(1.10.0),
+Signac,
 dplyr,
 ggpubr,
 monocle3,
 ggplot2,
 igraph,
-Matrix(1.6-5),
+Matrix,
 harmony,
 sctransform,
 GenomeInfoDb,

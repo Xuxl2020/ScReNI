@@ -59,7 +59,7 @@ library(ScReNI)
 
 We use unpaired scRNA-seq and scATAC-seq data from retinal development as example datasets.
 
-[Using ScReNI to analyze unpaired scRNA-seq and scATAC-seq data from retinal development](https://htmlpreview.github.io/?https://github.com/Xuxl2020/ScReNI/blob/master/ScReNI-tutorial.html)
+[Using ScReNI to analyze unpaired scRNA-seq and scATAC-seq data from retinal development](https://htmlpreview.github.io/github.com/Xuxl2020/ScReNI/blob/master/ScReNI-tutorial.html)
 
 
 

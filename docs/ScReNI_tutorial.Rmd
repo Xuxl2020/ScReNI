@@ -4,26 +4,33 @@ title: "ScReNI tutorial"
 author:  xueli xu
 date: "`r Sys.Date()`"
 output:
-  rmdformats::downcute:
-    self_contained: true
+    html_document:
+    toc: true 
+    number_sections: true
+    theme: united 
     thumbnails: true
     lightbox: true
     gallery: false
-    highlight: tango
 ---
-
 <style>
   body {
-  font-family: "Helvetica";
-    font-size: 16px;
-    color: black;
+  width: 100%; 
+  margin: auto; 
+  font-size: 20px;
+  color: black;
   }
+</style>
+
+<style>
+pre {
+  font-size: 20px;
+}
 </style>
 
 ```{r setup, include=FALSE}
 rm(list=ls())
 ## Global options
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(cache = F)
 library(ScReNI)
 
 ```
@@ -53,25 +60,24 @@ library(Matrix) ###remotes::install_version("Matrix", version = "1.6-5")
 library(harmony) ###remotes::install_version("harmony", version = "0.1.1")
 library(sctransform) ###remotes::install_version("sctransform", version = "0.4.1")
 library(GenomeInfoDb)
+library(BSgenome.Mmusculus.UCSC.mm10)
 library(EnsDb.Mmusculus.v79)
 library(ComplexHeatmap)
 library(IReNA)
 library(patchwork)
 library(future)
-
+library(cowplot)
 ```
 
 # Introduction
 
 ScReNI infers the regulatory network for each cell through integrating unpaired scRNA-seq and scATAC-seq data. This comprehensive tutorial is structured into five steps: (1) Clustering Integration; (2) Inference of Single Cell-Specific Networks; 
 (3) Evaluation of Regulatory Networks; (4) Cell Clustering Based on Networks; 
-(5) Identification of Enriched Regulators.
+(5) Identification of Cell-enriched Regulators.
 
 ## Input Data
-## Seurat Object
 
-The Seurat object is expected to encapsulate cell type information within the 'active.ident' slot. This slot is pivotal as it designates the identity of each cell within the dataset. For those seeking to test the functionality, example datasets can be obtained from in the 'data' folder.
-
+Seurat objects and intermediate files can be accessed and downloaded through the following link: [Datasets](https://drive.google.com/drive/folders/1SJYbxeFk8z6Ac9bRJTdbtTJ9y-M4HsHf?usp=drive_link)
 Please ensure that the Seurat object is properly formatted and includes all necessary metadata for accurate analysis.
 
 ```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=16}
@@ -83,7 +89,8 @@ data.type = 'unpaired'
 ```
 
 ```r
-# Load scRNA-seq and scATAC-seq data
+# Please set your path
+path = 'data/'
 scRNAseq <- readRDS(paste0(path, data.name, "_scRNAseq.rds"))  
 scATACseq <- readRDS(paste0(path, data.name, "_scATACseq.rds"))
 
@@ -96,35 +103,27 @@ For more detailed content and introduction, please refer to the website (https:/
 
 ```r
 # Step 1.1: integrate scRNA-seq and scATAC-seq
-
 # Define integration parameters
 IntegratedDimensions <- 20
 KNN <- 20
 AnchorsDim <- 50
-
 # for unpaired scRNA-seq and scATAC-seq data
 coembed <- Integrate_scRNA_scATAC(scRNAseq, scATACseq, AnchorsDim, IntegratedDimensions, KNN, data.type='unpaired')
-
 # for paired scRNA-seq and scATAC-seq data
 # coembed <- Integrate_scRNA_scATAC(scRNAseq, scATACseq, IntegratedDimensions, KNN, data.type='paired', species)
 
 ```
-```r
+```{r, message=FALSE, warning=FALSE, fig.height=20, fig.width=30}
 # Step 1.2: plot figures for the integrated scRNAseq and scATACseq
-```
-```r
 coembed <- readRDS('data/mmRetina_RPCMG_integrated_scRNA_scATAC_D30.rds')
 groups=c('datatypes', 'samples', 'celltypes')
 print(DimPlot(coembed, group.by = groups[1], reduction = "umap", pt.size = 0.8, label = F) 
-          | DimPlot(coembed, group.by = groups[2], reduction = "umap", pt.size = 0.8, label = F)
-          | DimPlot(coembed, group.by = groups[3], reduction = "umap", pt.size = 0.8, label = T))
-
+      |DimPlot(coembed, group.by = groups[2], reduction = "umap", pt.size = 0.8, label = F)
+      |DimPlot(coembed, group.by = groups[3], reduction = "umap", pt.size = 0.8, label = T))
 ```
-![](Readme figure/unnamed-chunk-3-1.png){ width=50% height=50% }
 
 ```r
 # Step 1.3 only for unpaired data: get the nearest neighbor of each cell. However, for paired data, step 1.3 is not necessary. Instead, you can proceed directly to step 2 of the analysis pipeline.
-
 scRNA_scATAC_neighbor <- Get_scRNA_scATAC_neighbors(coembed)
 scRNA_scATAC_neighbor_dup <- scRNA_scATAC_neighbor[[1]]
 scRNA_scATAC_neighbor_undup <- scRNA_scATAC_neighbor[[2]]
@@ -132,14 +131,14 @@ scRNA_scATAC_neighbor_undup <- scRNA_scATAC_neighbor[[2]]
 ```
 
 ## Step 2: infer single cell-specific networks
-We reconstructed the single-cell networks using CSN, LIONESS, kScReNI, and CeSpGRN. These tools infer cell-specific regulatory networks using transcriptomes alone. wScReNI stands out as the primary analytical tool for integrating scRNA-seq and scATAC-seq data. In our analysis, we focused on the top 500 highly variable genes and the top 10,000 highly variable peaks for feature selection. To reconstruct the cell-specific networks, we randomly selected 100 cells from each of three distinct types of retinal progenitor cells (RPCs) and one type of Müller glial cells (MGs).Researchers have the flexibility to either utilize the entire population of cells for a comprehensive analysis or select a subset of cells to infer the single-cell regulatory networks. This flexibility allows for tailored analyses depending on the specific scientific questions and the computational resources available.
+kScReNI infers cell-specific regulatory networks using transcriptomes alone. wScReNI infers cell-specific regulatory networks by integrating scRNA-seq and scATAC-seq data.
 
 ``` {r, message=FALSE, warning=FALSE, fig.height=8, fig.width=16}
 # set the parameters
 cell.num = 100 # number of each cell type
 ngenes = 500 # number of highly variable genes
 npeaks = 10000 #  number of highly variable peaks 
-result.path = 'results/'
+result.path = 'results/' # please set the result path
 network.path = paste0(result.path, 'NetworksC', cell.num, '/')  # the path to save networks
 
 ``` 
@@ -155,180 +154,113 @@ scRNA.scATAC.cells <- Select_partial_cells_for_scNewtorks(coembed, Partial_cell,
 
 ``` 
 
-In our approach to applying network algorithms for inferring regulatory networks, we utilize count data as the primary input. However, the choice of data can be adapted based on the particularities of the research question at hand. If necessary, you have the option to opt for processed data that has undergone various computational transformations. Such 
-transformations might include normalization, variance stabilization, or other forms of data preprocessing.
-
 ``` r
 # Step 2.2: select top variable genes and peaks to infer scNetworks
-
 sub.scrna.top <- select_features(sub.scrna, ngenes, datatype='RNA')
 sub.scatac.top <- select_features(sub.scatac, npeaks, datatype='ATAC')
 
-sub.scrna.top <- sub.scrna.top$counts
-sub.scatac.top <- sub.scatac.top$counts
-
 ``` 
-
-The implementation of CSN, LIONESS, and kScReNI is primarily done through R code. However, for CeSpGRN, the process requires Python code, which necessitates running Python scripts within a Python environment. The specific Python scripts you need are located in the 'mmRetina_RPCMG_CeSpGRN_Python.txt' file within the R folder. This file contains the Python code required for your analysis. For a deeper understanding of the algorithm and to access additional resources, you are encouraged to visit Zhang's Lab, the originators of this methodology (https://github.com/PeterZZQ/CeSpGRN). Their expertise and comprehensive materials will provide further insights and guidance.
-
 ``` r
-# Step 2.3: infer scNetworks using CSN
-CSN <- Infer_CSN_scNetworks(sub.scrna.top)
-
-# Step 2.4: infer scNetworks using LIONESS
-LIONESS.weights <- Infer_LIONESS_scNetworks(sub.scrna.top)
-
-# Step 2.5: infer scNetworks using kScReNI
+# Step 2.3: infer scNetworks using kScReNI
 kScReNI.weights <- Infer_kScReNI_scNetworks(sub.scrna.top, ngenes, knn=KNN)
 
 ```
-``` r
-# Step 2.6: infer scNetworks using CeSpGRN
-print("Execute the Python code in ‘R/mmRetina_RPCMG_CeSpGRN_Python.txt")
 
-```
-When utilizing the wScReNI approach, we rely on reference datasets that are made available in the 'refer' folder. These datasets are indispensable for elucidating the connections between genes and peaks, which is a fundamental step in the regulatory network construction process. However, if you have prior knowledge of the specific relationships between genes and peaks, you have the flexibility to bypass the step of identifying these associations. In such cases, you can proceed directly to Step 2.7.2 of the network construction phase, where you will integrate this known information into the framework of the regulatory network. This option allows for a more streamlined workflow, particularly when the foundational relationships are already established, enabling researchers to focus on the higher-level analysis of network dynamics and regulatory mechanisms.
+When employing the wScReNI methodology, it is essential to leverage reference datasets. These datasets can be conveniently accessed and downloaded via the following link: [Reference dataset](https://drive.google.com/drive/folders/12a_SQjrdjUU6fx_En42GYguuch0DP8zQ?usp=drive_link). They serve as an indispensable resource for deciphering the intricate connections between genes and peaks, a fundamental step in the construction of regulatory networks. However, if you have prior knowledge of the specific relationships between genes and peaks, you can proceed directly to Step 2.4.2 of the network construction phase.
 
 ``` r
-# Step 2.7: infer scNetworks using wScReNI
-# Step 2.7.1: identification of peak-associated genes
-# reference datasets for identification of peak-associated genes
+# Step 2.4: infer scNetworks using wScReNI
+# Step 2.4.1: identification of peak-associated genes
 library(BSgenome.Mmusculus.UCSC.mm10) ### 1.4.3
 genome_database = BSgenome.Mmusculus.UCSC.mm10
-motif_database <- read.table("refer/Tranfac201803_Mm_MotifTFsFinal.txt", header = T)
-gtf_data <- rtracklayer::import("refer/mouse.genes.gtf")
+motif_database <- read.table("Tranfac201803_Mm_MotifTFsFinal.txt", header = T)
+gtf_data <- as.data.frame(rtracklayer::import("mouse.genes.gtf"))
+motif_pwm <- readRDS("all_motif_pwm.rds")
 
-gtf_data <- as.data.frame(gtf_data)
-motif_pwm <- readRDS("refer/all_motif_pwm.rds")
+gene_peak_overlap <- Infer_gene_peak_relationships(gtf_data, 
+                                                   sub.scrna.top, 
+                                                   sub.scatac.top,
+                                                   motif_database, 
+                                                   motif_pwm, 
+                                                   genome_database = genome_database)
 
-```
-
-### Identification of peak-associated genes
-
-![](Readme figure/gene_peak_relationship.png){ width=70% height=70% }
-
-``` r
-gene_peak_overlap <- Infer_gene_peak_relationships(gtf_data, sub.scrna.top, sub.scatac.top,
-                                                   motif_database, motif_pwm, genome_database = genome_database)
 gene_peak_overlap_matrix <- peakMat(sub.scatac.top, gene_peak_overlap)
 gene_peak_overlap_labs <- peak_gene_TF_labs(gene_peak_overlap)
 
 ```
 
 ``` r
-# Step 2.7.2: get the nearest neighbor of each cell
+# Step 2.4.2: get the nearest neighbor of each cell
 scRNA_scATAC_WNN <- Integrate_scRNA_scATAC(sub.scrna.top, sub.scatac.top, IntegratedDimensions=20, KNN, data.type='paired')
 nearest.neighbors.idx <- scRNA_scATAC_WNN[['weighted.nn']]@nn.idx
 rownames(nearest.neighbors.idx) <- scRNA_scATAC_WNN[['weighted.nn']]@cell.names
-ncell = 400
-# Step 2.7.3: infer scNetworks using wScReNI
-wScReNI.weights <- Infer_wScReNI_scNetworks(sub.scrna.top, gene_peak_overlap_matrix, gene_peak_overlap_labs, nearest.neighbors.idx, network.path, data.name, cell.index=1:ncell)
+```
+
+``` r
+# Step 2.4.3: infer scNetworks using wScReNI
+wScReNI.weights <- Infer_wScReNI_scNetworks(sub.scrna.top, gene_peak_overlap_matrix, gene_peak_overlap_labs, nearest.neighbors.idx, network.path, data.name, cell.index=1:400)
 wScReNI.weights <- Combine_wScReNI_scNetworks(sub.scrna.top, network.path)
 
 ```
-## Step 3: evaluation of the precision and recall on regulatory networks
-ChIP-atlas was used to assess the inferred regulatory relationships. This dataset serves as a valuable reference for evaluating the performance of different network inference methods. Precision and recall serve as metrics for evaluating the performance of different single-cell regulatory network inference methods.
 
-``` r
-# Read the relationships of gene ID and gene symbol based on species
-Gene_gtf_information <- 'gtf_region.10X_Mouse_ref'
-ChIP_atlas <- 'mmp9.TSV.5kb_TF_target.df'
-
-gtf_regions <- read.table(paste0('refer/', Gene_gtf_information, ".txt"), sep = "\t", header = T)
-gene_id_gene_name_pair <- Deal_gene_information(gtf_regions)
-
-# Read TF-target pairs from ChIP Atlas
-TF_target <-read.table(paste0('refer/', ChIP_atlas, ".txt"), sep="\t")
-TF_target_pair <- unique(paste(TF_target[, 1], TF_target[, 2], sep="_"))
-
-```
-
-```r
-# make sure the first element of scNetworks is from CSN
-scNetworks <- list(CSN, CeSpGRN.weights, LIONESS.weights, kScReNI.weights, wScReNI.weights)
-names(scNetworks) <- c('CSN', 'CeSpGRN', 'LIONESS', 'kScReNI', 'wScReNI')
-
-# Set the parameters
-top_number = c(1000, seq(2000, 10000, by=2000), 20000)
-
-# Calculate the precision and recall
-# Calculate the precision and recall
-scNetworks_precision_recall <- Calculate_scNetwork_precision_recall(scNetworks, TF_target_pair, top_number)
-scNetworks_precision_recall_noCSN <- scNetworks_precision_recall[-1]
-scNetworks_precision_recall_top <- Calculate_scNetwork_precision_recall_top(scNetworks_precision_recall_noCSN, top_number)
-
-```
-
-```{r, message=FALSE, warning=FALSE, fig.height=10, fig.width=20}
-# Plot the precision and recall
-scNetworks_precision_recall <- read.csv('data/mmRetina_RPCMG_Cell100.500_scNetwork_precision_recall.csv', row.names = 1)
-colors = c("#5A5A5A", "#EF9951", "#A9A9A9", "#67C1E3", rgb(253/255,209/255,176/255))
-
-p1 <- ggplot(scNetworks_precision_recall, aes(x=scNetwork_type, y=precision, color=scNetwork_type)) + 
-    geom_boxplot() + scale_color_manual(values=colors)+
-  theme_classic() + theme(axis.text=element_text(size=14), axis.title=element_text(size=16))
-  
-p2 <- ggplot(scNetworks_precision_recall, aes(x=scNetwork_type, y=recall, color=scNetwork_type)) + 
-    geom_boxplot() + scale_color_manual(values=colors)+
-  theme_classic() + theme(axis.text=element_text(size=14), axis.title=element_text(size=16))
-ggarrange(p1, p2, labels = c("A", "B"), ncol = 2, nrow = 1)
-
-```
-
-## Step 4: perform cell clustering based on single cell-specific networks
-For the purpose of network-based cell clustering, we calculated gene degrees derived from cell-specific networks. To evaluate the influence of the number of pairwise relationships between TFs and target genes, we applied diverse thresholds to the ranked weights. Specifically, we select the top 500 gene regulation pairs. To quantitatively measure the similarity between the resulting clustering and the known ground truth of cell types, we employ the adjusted rand index (ARI). This metric is implemented in the ‘randIndex’ function from the R package ‘flexclust’, providing a robust statistical measure for evaluating the accuracy of our clustering method.
+## Step 3: perform cell clustering based on single cell-specific networks
+For the purpose of network-based cell clustering, we calculated gene degrees derived from cell-specific networks. To evaluate the influence of the number of pairwise relationships between TFs and target genes, we applied diverse thresholds to the ranked weights.
 
 ```{r, message=FALSE, warning=FALSE}
-# Step 4.1: Calculate the degrees and Adjusted Rand Index (ARI) according to single cell-specific networks
-# ntype = 4 for mmRetina_RPCMG 
-ncell = 400; ntype = 4; top = rep(500, ncell)
+# Step 4.1: Calculate the degrees
+ncell = 400; ntype = 4; top = rep(500, ncell) # top 500 gene regulation pairs
 celltype <- read.csv(paste0('data/', data.name, "_Cell", cell.num, "_annotation.csv"))
 sub.celltype <- celltype$undup.cell.types
+
 ```
 ```r
 scNetworks_degree <- calculate_scNetwork_degree(scNetworks, top, sub.celltype, ntype, column_name='sub.celltype')
 
 ```
 
-```{r, message=FALSE, warning=FALSE, fig.height=9, fig.width=9}
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=12}
 # Step 4.2: Plot cell clustering based on the networks
 load('data/scNetworks_degree.rdata')
 col = list(Cell_type = c("MG" = "red", "RPCs_S1" = "green", "RPCs_S2" = "blue", "RPCs_S3" = "purple"))
-
 Network_types <- names(scNetworks_degree)
-
-for(i in 1:length(scNetworks_degree)){
-  
-  print(Network_types[i])
-  
-  degree <- scNetworks_degree[[i]]
-  outdegree <- degree[['outdegree']]
-  out.degree <- degree[['out.degree.umap']]
-  # plot the heatmap based on the similarity of the degree matrix
-  column_ha = HeatmapAnnotation("Cell_type" = sub.celltype, col = col)
-  print(Heatmap(cor(log(outdegree+1)), 
+i=3
+print(Network_types[i])
+degree <- scNetworks_degree[[i]]
+outdegree <- degree[['outdegree']]
+out.degree <- degree[['out.degree.umap']]
+# plot the heatmap based on the similarity of the degree matrix
+column_ha = HeatmapAnnotation("Cell_type" = sub.celltype, col = col)
+Heatmap(cor(log(outdegree+1)), 
                 top_annotation = column_ha, 
                 show_row_names = F, 
-                show_column_names = F))
-  
-  out.degree[['lab']] <- sub.celltype
-  print(DimPlot(out.degree, reduction = "umap", group.by = "lab", label = F))
-  
-}
-
-# Step 4.3: Save ARI for each single-cell network inference method
-ARI <- sapply(scNetworks_degree, function(network) {
-  c(network[["out.degree.umap.ARI"]], network[["out.degree.hclust.ARI"]])
-})
-rownames(ARI) <- c( "degree.umap.ARI", "degree.hclust.ARI")
-ARI
+                show_column_names = F)
+out.degree[['lab']] <- sub.celltype
+DimPlot(out.degree, reduction = "umap", group.by = "lab", label = F)
 
 ```
-## Step 5: identify regulators enriched in each single-cell regulatory network
-We used Monocle3 to investigate pseudotime trajectories in scRNA-seq data of mouse retinal development. Cells were clustered via UMAP reduction, and the principal graph was determined using the learn_graph function. Any RPC-I cell was set as the root when running order_cells. These data were then added back to Seurat as a metadata column for further analysis.
+
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=12}
+i=5
+print(Network_types[i])
+degree <- scNetworks_degree[[i]]
+outdegree <- degree[['outdegree']]
+out.degree <- degree[['out.degree.umap']]
+# plot the heatmap based on the similarity of the degree matrix
+column_ha = HeatmapAnnotation("Cell_type" = sub.celltype, col = col)
+Heatmap(cor(log(outdegree+1)), 
+                top_annotation = column_ha, 
+                show_row_names = F, 
+                show_column_names = F)
+out.degree[['lab']] <- sub.celltype
+DimPlot(out.degree, reduction = "umap", group.by = "lab", label = F)
+
+```
+
+## Step 4: identify regulators enriched in each single-cell regulatory network
+We used Monocle3 to investigate pseudotime trajectories in scRNA-seq data. Cells were clustered via UMAP reduction, and the principal graph was determined using the learn_graph function. Any RPC-I cell was set as the root when running order_cells. 
 
 ```r
-# Step 5.1: perform trajectory analysis to calculate pseudotime
+# Step 4.1: perform trajectory analysis to calculate pseudotime
 DefaultAssay(coembed) <- "RNA"
 load('data/gene.use.rdata') 
 seurat_object <- coembed[gene.use,]
@@ -336,7 +268,6 @@ expression_matrix0 <- as.matrix(seurat_object@assays$RNA@counts)
 seurat.obj <- seurat_object[,Matrix::colSums(expression_matrix0) != 0]
 expression_matrix <- expression_matrix0[,Matrix::colSums(expression_matrix0) != 0]
 cell_metadata <- seurat_object@meta.data[Matrix::colSums(expression_matrix0) != 0,]
-
 gene_annotation <- data.frame(gene_short_name=rownames(expression_matrix))
 rownames(gene_annotation) <- rownames(expression_matrix)
 
@@ -355,7 +286,6 @@ cds <- reduce_dimension(cds, preprocess_method = "PCA")
 # umap
 cds.embed <- cds@int_colData$reducedDims$UMAP
 int.embed <- Embeddings(seurat.obj, reduction = "umap")
-
 int.embed <- int.embed[rownames(cds.embed),]
 cds@int_colData$reducedDims$UMAP <- int.embed
 cds@clusters$UMAP$clusters <- seurat.obj@meta.data[rownames(colData(cds)), "seurat_clusters"]
@@ -370,9 +300,9 @@ cds <- learn_graph(cds,learn_graph_control=list("euclidean_distance_ratio"=5, "g
     
 ```
 
-``` {r, message=FALSE, warning=FALSE, fig.height=9, fig.width=9}
+``` {r, message=FALSE, warning=FALSE, fig.height=8, fig.width=8}
 load('data/cds_learn_graph.rdata')
-plot_cells(cds,
+p1 = plot_cells(cds,
            color_cells_by = "seurat_clusters",
            label_groups_by_cluster = FALSE,
            label_leaves = TRUE,
@@ -385,9 +315,9 @@ cds <- order_cells(cds)
 
 ```
 
-``` {r, message=FALSE, warning=FALSE, fig.height=9, fig.width=9}
+``` {r, message=FALSE, warning=FALSE, fig.height=8, fig.width=24}
 load('data/cds_order_cells.rdata')
-plot_cells(cds,
+p2 = plot_cells(cds,
           color_cells_by = "pseudotime",
           label_cell_groups = F,
           label_leaves = F,
@@ -400,19 +330,17 @@ pseudotime <- pseudotime(cds, reduction_method = 'UMAP')
 load('data/seurat.obj.rdata')
 pseudotime <- pseudotime[rownames(seurat.obj@meta.data)]
 seurat.obj$Pseudotime <- pseudotime
-FeaturePlot(seurat.obj, reduction = "umap", features = "Pseudotime")
-
+p3 = FeaturePlot(seurat.obj, reduction = "umap", features = "Pseudotime")
+plot_grid(p1, p2, p3, nrow=1)
 ```
-<br />
-Considering the sparsity of scRNA-seq data, we employed smoothed expression profiles for gene co-expression analysis. Pseudotime was divided into 50 equal intervals. Highly variable genes and expressed transcription factors were grouped into distinct modules using K-means clustering on the smoothed profiles. For each module, we conducted functional enrichment analysis using ClusterProfiler.
-
 ```r
-print("Step 5.2: smooth the expression of highly variable genes according to pseudotime")
+# Step 4.2: smooth the expression of highly variable genes according to pseudotime
 # Get expression profiles ordered by pseudotime
 seurat_with_time = seurat.obj
 expression_profile <- IReNA::get_SmoothByBin_PseudotimeExp(seurat_with_time, Bin = 50)
-
-print("Step 5.3: modularized highly variable genes through k-means of the smoothed expression")
+```
+```r
+# Step 4.3: modularized highly variable genes through k-means of the smoothed expression
 # Filter noise and logFC in expression profile
 expression_profile_filter <- IReNA::filter_expression_profile(expression_profile, FC=0.01)
 # K-means clustering
@@ -420,36 +348,43 @@ clustering <- IReNA::clustering_Kmeans(expression_profile_filter, K1=10)
 
 ```
 
-```{r, message=FALSE, warning=FALSE, fig.height=9, fig.width=9}
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=16}
 clustering <- read.table('data/clustering_revised.txt', head=T)
-col = c(colors <- c(rgb(174/255,199/255,232/255), rgb(103/255,193/255,227/255), rgb(91/255,166/255,218/255), rgb(0/255,114/255,189/255), rgb(253/255,209/255,176/255), rgb(239/255,153/255,81/255), rgb(229/255,97/255,69/255),
-                       rgb(175/255,180/255,219/255)))
-plot_kmeans_pheatmap(clustering,
-                    ModuleColor1 = c(colors <- col))
-
 Kmeans_clustering_ENS <- add_ENSID(clustering, Spec1='Mm')
-
 # KEGG
 library(org.Mm.eg.db)
 keytypes(org.Mm.eg.db)
 library(KEGG.db)
 enrichment_KEGG <- enrich_module(Kmeans_clustering_ENS, org.Mm.eg.db, enrich.db = 'KEGG', organism = 'mmu')
-head(enrichment_KEGG)
+enrichment_KEGG[1:2,]
+# GO
 enrichment_GO <- enrich_module(Kmeans_clustering_ENS, org.Mm.eg.db, 'GO', organism = 'mmu')
-head(enrichment_GO)
+enrichment_GO[1:2,]
 
-Mm_func = enrichment_GO[order(enrichment_GO$module,decreasing = F),c(2,3,9)]
-
+Mm_func = enrichment_GO[order(enrichment_GO$module,decreasing = T),c(2,3,9)]
 Mm_func$score = -log10(Mm_func$qvalue)
 Mm_func$rank = 1:nrow(Mm_func)
 Mm_func$module = factor(Mm_func$module)
-Mm_col = c(colors <- c(rgb(174/255,199/255,232/255), rgb(103/255,193/255,227/255), rgb(91/255,166/255,218/255), rgb(0/255,114/255,189/255), rgb(253/255,209/255,176/255), rgb(239/255,153/255,81/255), rgb(229/255,97/255,69/255), 
-                       rgb(175/255,180/255,219/255)))
+col = c(colors <- c(rgb(174/255,199/255,232/255), rgb(103/255,193/255,227/255), rgb(91/255,166/255,218/255), rgb(0/255,114/255,189/255), rgb(253/255,209/255,176/255), rgb(239/255,153/255,81/255)))
+plot_kmeans_pheatmap(clustering[order(clustering$KmeansGroup,decreasing = F),],
+                    ModuleColor1 = c(colors <- col))
 ggplot2::ggplot(Mm_func,aes(x=reorder(Description,rank),y=score))+
   geom_bar(position="dodge",stat="identity",aes(fill = module))+
   theme_classic()+ theme(panel.grid=element_blank(),text=element_text(size=15,face = "bold"))+
   xlab(NULL)+coord_flip() + ylab('-log10(qvalue)')+scale_fill_discrete(name = "module")+
-  scale_fill_manual(values=Mm_col)
+  scale_fill_manual(values=col)
 
 ```
 
+```r
+# Step 4.4: Identification of cell-enriched regulators
+gtf <- read.delim("refer/mouse.genes.gtf", header=FALSE, comment.char="#")
+source('R/cell_enriched_regulator.R')
+source('R/CACIMAR_R_NewFunctions.R')
+source('R/network_analysis.R')
+# enriched regulator for cell one
+cell.one_regulator_enrich <- regulator_enrich(wScReNI.weights[[1]], Kmeans_clustering_ENS, Tranfac201803_Mm_MotifTFsF, gtf, BSgenome.Mmusculus.UCSC.mm10, top_num_weig=3000)
+# enriched regulator for each cell 
+cell_enriched_regulator(wScReNI.weights, Kmeans_clustering_ENS, Tranfac201803_Mm_MotifTFsF, gtf, BSgenome.Mmusculus.UCSC.mm10, 3000)
+
+```

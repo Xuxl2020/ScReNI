@@ -1,17 +1,16 @@
-
 ---
 title: "ScReNI tutorial"
 author:  xueli xu
 date: "`r Sys.Date()`"
 output:
-    html_document:
-    toc: true 
-    number_sections: true
-    theme: united 
+  rmdformats::downcute:
+    self_contained: true
     thumbnails: true
     lightbox: true
     gallery: false
+    highlight: tango
 ---
+
 <style>
   body {
   width: 100%; 
@@ -26,6 +25,7 @@ pre {
   font-size: 20px;
 }
 </style>
+
 
 ```{r setup, include=FALSE}
 rm(list=ls())
@@ -71,11 +71,14 @@ library(cowplot)
 
 # Introduction
 
-ScReNI infers the regulatory network for each cell through integrating unpaired scRNA-seq and scATAC-seq data. This comprehensive tutorial is structured into five steps: (1) Clustering Integration; (2) Inference of Single Cell-Specific Networks; 
-(3) Evaluation of Regulatory Networks; (4) Cell Clustering Based on Networks; 
+ScReNI infers the regulatory network for each cell through integrating unpaired scRNA-seq and scATAC-seq data. This comprehensive tutorial is structured into five steps: 
+(1) Clustering Integration; 
+(2) Inference of Single Cell-Specific Networks; 
+(3) Evaluation of Regulatory Networks; 
+(4) Cell Clustering Based on Networks; 
 (5) Identification of Cell-enriched Regulators.
 
-## Input Data
+# Input Data
 
 Seurat objects and intermediate files can be accessed and downloaded through the following link: [Datasets](https://drive.google.com/drive/folders/1SJYbxeFk8z6Ac9bRJTdbtTJ9y-M4HsHf?usp=drive_link)
 Please ensure that the Seurat object is properly formatted and includes all necessary metadata for accurate analysis.
@@ -96,7 +99,7 @@ scATACseq <- readRDS(paste0(path, data.name, "_scATACseq.rds"))
 
 ```
 
-## Step 1: perform clustering to integrate scRNA-seq and scATAC-seq data
+# Step 1: perform clustering to integrate scRNA-seq and scATAC-seq data
 
 In this Step, we’ll demonstrate how to jointly analyze a single-cell dataset measuring both DNA accessibility and gene expression in the same cells using Signac and Seurat. 
 For more detailed content and introduction, please refer to the website (https://stuartlab.org/signac/articles/pbmc_multiomic)
@@ -130,7 +133,7 @@ scRNA_scATAC_neighbor_undup <- scRNA_scATAC_neighbor[[2]]
 
 ```
 
-## Step 2: infer single cell-specific networks
+# Step 2: infer single cell-specific networks
 kScReNI infers cell-specific regulatory networks using transcriptomes alone. wScReNI infers cell-specific regulatory networks by integrating scRNA-seq and scATAC-seq data.
 
 ``` {r, message=FALSE, warning=FALSE, fig.height=8, fig.width=16}
@@ -166,7 +169,7 @@ kScReNI.weights <- Infer_kScReNI_scNetworks(sub.scrna.top, ngenes, knn=KNN)
 
 ```
 
-When employing the wScReNI methodology, it is essential to leverage reference datasets. These datasets can be conveniently accessed and downloaded via the following link: [Reference dataset](https://drive.google.com/drive/folders/12a_SQjrdjUU6fx_En42GYguuch0DP8zQ?usp=drive_link). They serve as an indispensable resource for deciphering the intricate connections between genes and peaks, a fundamental step in the construction of regulatory networks. However, if you have prior knowledge of the specific relationships between genes and peaks, you can proceed directly to Step 2.4.2 of the network construction phase.
+When employing wScReNI, it is essential to leverage reference datasets. These datasets can be conveniently accessed and downloaded via the following link: [Reference dataset](https://drive.google.com/drive/folders/12a_SQjrdjUU6fx_En42GYguuch0DP8zQ?usp=drive_link). They serve as an indispensable resource for deciphering the intricate connections between genes and peaks, a fundamental step in the construction of regulatory networks. However, if you have prior knowledge of the specific relationships between genes and peaks, you can proceed directly to Step 2.4.2 of the network construction phase.
 
 ``` r
 # Step 2.4: infer scNetworks using wScReNI
@@ -203,7 +206,7 @@ wScReNI.weights <- Combine_wScReNI_scNetworks(sub.scrna.top, network.path)
 
 ```
 
-## Step 3: perform cell clustering based on single cell-specific networks
+# Step 3: perform cell clustering based on single cell-specific networks
 For the purpose of network-based cell clustering, we calculated gene degrees derived from cell-specific networks. To evaluate the influence of the number of pairwise relationships between TFs and target genes, we applied diverse thresholds to the ranked weights.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -256,8 +259,8 @@ DimPlot(out.degree, reduction = "umap", group.by = "lab", label = F)
 
 ```
 
-## Step 4: identify regulators enriched in each single-cell regulatory network
-We used Monocle3 to investigate pseudotime trajectories in scRNA-seq data. Cells were clustered via UMAP reduction, and the principal graph was determined using the learn_graph function. Any RPC-I cell was set as the root when running order_cells. 
+# Step 4: identify regulators enriched in each single-cell regulatory network
+We used Monocle3 to investigate pseudotime trajectories in scRNA-seq data. Cells were clustered via UMAP reduction, and the principal graph was determined using the learn_graph function. Any RPCs_S1 cell was set as the root when running order_cells. 
 
 ```r
 # Step 4.1: perform trajectory analysis to calculate pseudotime

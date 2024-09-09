@@ -12,16 +12,22 @@ unpaired datasets from scRNA-seq and scATAC-seq. It stands out with its
 capability of identifying cell-enriched regulators based on each
 cell-specific network.
 
-ScReNI has the following four key steps:
+ScReNI has the following five key steps:
 
--   **clustering of cells measured by scRNA-seq and scATAC-seq**
+-   **Cells measured by scRNA-seq and scATAC-seq are clustered
+    together**
 
--   **identification of k-nearest neighbors for each cell**
+-   **Neighbors for each cell are identified using the k-nearest
+    neighbors algorithm**
 
--   **inference of gene regulatory relationships via random forest**
+-   **The weights of transcription factors regulating target genes are
+    calculated using random forest**
 
--   **reconstruction and evaluation of cell-specific regulatory
+-   **ScReNI is validated by assessing cell-specific regulatory
     networks**
+
+-   **Cell-enriched regulators are identified based on each
+    cell-specific network**
 
 <img src="Readme%20figure/ScReNI_schematics.png"
 style="width:70.0%;height:70.0%" />

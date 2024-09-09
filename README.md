@@ -3,16 +3,14 @@
 
 # ScReNI: single-cell regulatory network inference through integrating scRNA-seq and scATAC-seq data
 
-ScReNI is a new algorithm that harnesses the power of k-nearest
-neighbors and random forest classifiers to deduce regulatory networks
-for each cell. This method integrates single-cell RNA sequencing
-(scRNA-seq) and single-cell ATAC sequencing (scATAC-seq) data to provide
-a comprehensive view of cellular regulation. Notably, ScReNI is
-versatile, capable of being applied to both paired and unpaired
-scRNA-seq and scATAC-seq datasets. Additionally, ScReNI offers a
-distinctive feature: it enables the identification of regulators that
-are specifically enriched in each cell type, based on the cell-specific
-networks it constructs.
+ScReNI is a novel algorithm that leverages k-nearest neighbors and
+random forest algorithms to integrate single-cell RNA sequencing
+(scRNA-seq) and single-cell ATAC sequencing (scATAC-seq) data, enabling
+the inference of gene regulatory networks at the single-cell level.
+Designed to be versatile, ScReNI is adept at handling both paired and
+unpaired datasets from scRNA-seq and scATAC-seq. It stands out with its
+capability of identifying cell-enriched regulators based on each
+cell-specific network.
 
 ScReNI has the following four key steps:
 

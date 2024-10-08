@@ -1,4 +1,17 @@
-###Infer single-cell specific networks using kScReNI
+
+
+#' Infer single-cell specific networks using kScReNI
+#'
+#' @param exprMatrix
+#' @param nfeatures
+#' @param knn
+#' @param nthread
+#' @param nTrees
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 
 Infer_kScReNI_scNetworks <- function(exprMatrix, nfeatures=4000, knn=20, nthread=20, nTrees=100){

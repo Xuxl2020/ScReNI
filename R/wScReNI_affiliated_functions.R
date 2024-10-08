@@ -1,5 +1,16 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/wScReNI_affiliated_functions.R')
-
+#' Title
+#'
+#' @param gtf_data
+#' @param scrna
+#' @param gene_name_type
+#' @param scatac 
+#' @param upstream_len
+#' @param downstream_len
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 # overlaps between genes (target genes and TFs) and peaks by TSS
 peak_gene_overlap_GR1 <- function(gtf_data, scrna, gene_name_type, scatac, upstream_len, downstream_len){
   scrna_gene_id <- rownames(scrna)
@@ -15,6 +26,19 @@ peak_gene_overlap_GR1 <- function(gtf_data, scrna, gene_name_type, scatac, upstr
   return(overlap_peak_GR)
 }
 
+#' Title
+#'
+#' @param exprMatrix
+#' @param scatac
+#' @param peak_gene_overlap_GR
+#' @param threshold
+#' @param nthread
+#' @param downstream_len
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 # correlation between gene and peak
 gene_peak_corr1 <- function(exprMatrix, scatac, peak_gene_overlap_GR, threshold = 0.1, nthread=20){
@@ -42,6 +66,19 @@ gene_peak_corr1 <- function(exprMatrix, scatac, peak_gene_overlap_GR, threshold 
   return(overlap_gene_peak1)
 }
 
+#' Title
+#'
+#' @param peak_gene_overlap_GR2
+#' @param gene_name_type
+#' @param motif_database
+#' @param motif_pwm
+#' @param genome_database
+#' @param pvalue=5^(-4)
+#' @param nthread=10
+#' @return
+#' @export
+#'
+#' @examples
 
 Get_motif_peak_pair_df0 <- function(peak_gene_overlap_GR2, gene_name_type, 
                                     motif_database, motif_pwm, 
@@ -78,6 +115,16 @@ Get_motif_peak_pair_df0 <- function(peak_gene_overlap_GR2, gene_name_type,
   return(motif_ix_list)
 }
 
+#' Title
+#'
+#' @param motif_database
+#' @param motif_peak_pair_df
+#' @param peak_gene_overlap_GR2
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 peak_gene_TF_match <- function(motif_database, motif_peak_pair_df, peak_gene_overlap_GR2){
   # Matching tfs and motifs
@@ -98,7 +145,16 @@ peak_gene_TF_match <- function(motif_database, motif_peak_pair_df, peak_gene_ove
   return(peak_gene_TF)
 }
 
-
+#' Title
+#'
+#' @param motif_database
+#' @param overlap_gene
+#' @param gene_name_type
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 # find motifs
 motifs_select <- function(motif_database, overlap_gene, gene_name_type){
   if(gene_name_type == 'symbol'){
@@ -116,7 +172,16 @@ motifs_select <- function(motif_database, overlap_gene, gene_name_type){
   return(motif)
 }
 
-
+#' Title
+#'
+#' @param scatac
+#' @param peak_gene_TF
+#' @param pvalue
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 peakMat <- function(scatac, peak_gene_TF, pvalue=10^(-5)){
   peak.matrix_gene_peak_overlap <- as.matrix(scatac[rownames(scatac) %in% peak_gene_TF$peak.name, ])
   e_atac <- matrix(rnorm(nrow(peak.matrix_gene_peak_overlap)*ncol(peak.matrix_gene_peak_overlap), 0, pvalue), 
@@ -126,7 +191,14 @@ peakMat <- function(scatac, peak_gene_TF, pvalue=10^(-5)){
   return(peak.matrix_gene_peak_overlap)
 }
 
-
+#' Title
+#'
+#' @param peak_gene_TF
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 peak_gene_TF_labs <- function(peak_gene_TF){
   
   labels <- rep('target', length(peak_gene_TF$gene.name))
@@ -143,6 +215,17 @@ peak_gene_TF_labs <- function(peak_gene_TF){
   return(labs)
 }
 
+#' Title
+#'
+#' @param gtf_data
+#' @param scrna_gene_id
+#' @param gene_name_type
+#' @param upstream_len
+#' @param downstream_len
+#' @return
+#' @export
+#'
+#' @examples
 
 # get promoter region of gene
 get_tss_region <- function(gtf_data, scrna_gene_id, gene_name_type, upstream_len, downstream_len){

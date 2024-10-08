@@ -1,5 +1,13 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Calculate_scNetwork_precision_recall_top.R')
-###Calculate the precision and recall of single-cell specific network
+
+#' Calculate the precision and recall of top gene pairs from single-cell specific network
+#'
+#' @param scNet_precision_recall
+#' @param top_number
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Calculate_scNetwork_precision_recall_top <- function(scNet_precision_recall, top_number){
   

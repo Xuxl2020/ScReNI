@@ -7,21 +7,25 @@ Str_to_GR <- function(x){
   GR_out = GRanges(chr,IRanges(s,e))
   return(GR_out)
 }
+                        
 #' @export
 Seqnames <- function(x){
   out= as.character(seqnames(x))
   return(out)
 }
+                        
 #' @export
 Start <- function(x){
   out= as.numeric(start(x))
   return(out)
 }
+                        
 #' @export
 End <- function(x){
   out= as.numeric(end(x))
   return(out)
 }
+                        
 #' @export
 Must_to_GR <- function(x){
   library('pbapply')
@@ -38,6 +42,7 @@ Must_to_GR <- function(x){
   GR_out = GRanges(chr_all,IRanges(start_all,end_all),motifs=names_all)
   return(GR_out)
 }
+                     
 #' @export
 motifs_select <- function(motif,gene){
   index <- c()
@@ -94,6 +99,7 @@ identify_region_tfs <- function(GR,gene.use,motifdb,
   regulation <- data.frame('TF'=enriched_tf,'Target'=names(enriched_tf))
   return(regulation)
 }
+                     
 #' @export
 overlap_peak_motif <- function(peak,motif,motifdb){
   overlaped = findOverlaps(peak,motif)
@@ -101,6 +107,7 @@ overlap_peak_motif <- function(peak,motif,motifdb){
   peak_motif$TF = motifdb[match(peak_motif$motifs,motifdb$Accession),4]
   return(peak_motif)
 }
+                     
 #' @export
 make_tf_target <- function(atac_out){
   tf = atac_out$TF
@@ -108,6 +115,7 @@ make_tf_target <- function(atac_out){
   tf_target = unlist(map(tf,~paste_gene(.x)))
   return(tf_target)
 }
+                     
 #' @export
 paste_gene <- function(gene){
   tf = strsplit(gene,'#')[[1]][1]
@@ -143,6 +151,7 @@ filter_regulation_fimo <- function(fimo_regulation,regulatory_relationships){
   regulation1 <- regulatory_relationships[regulation_pair %in% fimo_pair,]
   return(regulation1)
 }
+                     
 #' @export
 split_motif <- function(motif){
   gene1 <- strsplit(motif[5],';')[[1]]

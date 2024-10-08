@@ -1,5 +1,4 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Deal_gene_information.R')
-
+#' @export
 Deal_gene_information <- function(gtf_regions, gene_name_type = 'symbol'){
   #remove non-protein coding genes
   gtf_regions <- gtf_regions[gtf_regions$gene_type %in% "protein_coding",]
@@ -36,7 +35,7 @@ Deal_gene_information <- function(gtf_regions, gene_name_type = 'symbol'){
   return(gene_id_gene_name_pair)
 }
 
-
+#' @export
 calculate_precision_recall <- function(scNetwork_weights, TF_target_pair, top_number=1000, gene_id_gene_name_pair=NULL, gene_name_type=NULL){
 
   link <- reshape2::melt(as.matrix(scNetwork_weights), na.rm=T)
@@ -82,7 +81,7 @@ calculate_precision_recall <- function(scNetwork_weights, TF_target_pair, top_nu
 ##   groupvars: a vector containing names of columns that contain grouping variables
 ##   na.rm: a boolean that indicates whether to ignore NA's
 ##   conf.interval: the percent range of the confidence interval (default is 95%)
-
+#' @export
 summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
                       conf.interval=.95, .drop=TRUE) {
     library(plyr)

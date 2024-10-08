@@ -1,4 +1,14 @@
-### Infer single-cell specific networks using LIONESS
+
+#' Infer single-cell specific networks using LIONESS
+#'
+#' @param exprMatrix
+#' @param nCores
+#' @param nTrees
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Infer_LIONESS_scNetworks <- function(exprMatrix, nCores = 60, nTrees = 100){
   

@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param data
+#' @param alpha
+#' @param boxsize
+#' @param weighted
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Infer_CSN_scNetworks <- function(data, alpha = 0.01, boxsize = 0.1, weighted = 0) {
 

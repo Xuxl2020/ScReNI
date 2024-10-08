@@ -1,6 +1,17 @@
-
+#' Title
+#'
+#' @param scRNAseq
+#' @param scATACseq
+#' @param AnchorsDim
+#' @param IntegratedDimensions
+#' @param KNN
+#' @param data.type
+#' @param species
+#' 
+#' @return
 #' @export
 #'
+#' @examples
 
 Integrate_scRNA_scATAC <- function(scRNAseq, scATACseq, AnchorsDim=50, IntegratedDimensions, KNN=20, data.type='unpaired', species='mouse'){
   

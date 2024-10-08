@@ -1,4 +1,15 @@
-
+#' Title
+#'
+#' @param scNetworks
+#' @param top
+#' @param cell_type_annotation
+#' @param ntype
+#' @param column_name
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 calculate_scNetwork_degree <- function(scNetworks, top, cell_type_annotation, ntype=NULL, column_name='undup.sub.celltype') {
   

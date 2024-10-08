@@ -1,4 +1,16 @@
-###select genes by rowSums>0 in expression and vst in seurat
+#' Title
+#'
+#' @param scrna
+#' @param nfeatures
+#' @param datatype
+#' @param SeuratLayer
+#'
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+
 
 select_features <- function(scrna, nfeatures = 4000, datatype = 'RNA', SeuratLayer=T){
   library(Seurat) ###remotes::install_version("Seurat", "5.0.1", repos = c("https://satijalab.r-universe.dev", getOption("repos")))

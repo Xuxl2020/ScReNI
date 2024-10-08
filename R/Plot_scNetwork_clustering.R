@@ -1,5 +1,17 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Plot_scNetwork_clustering.R')
-###Perform clustering based on the gene degrees of cell-specific networks
+
+#' Perform clustering based on the gene degrees of cell-specific networks
+#'
+#' @param degree_all
+#' @param path
+#' @param data.name
+#' @param cell_type_annotation
+#' @param col
+#' @param cell_type_column
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Plot_scNetwork_clustering <- function(degree_all, path, data.name, cell_type_annotation, col,
                                       cell_type_column){

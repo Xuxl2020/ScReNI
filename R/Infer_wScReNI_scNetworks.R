@@ -1,4 +1,20 @@
-###Construct single-cell regulatory networks using wScReNI
+
+#' Construct single-cell regulatory networks using wScReNI
+#'
+#' @param exprMatrix
+#' @param gene_peak_overlap_matrix
+#' @param gene_peak_overlap_labs
+#' @param nearest.neighbors.idx
+#' @param network.path
+#' @param data.name
+#' @param cell.index
+#' @param nthread
+#' @param max.cell.per.batch
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Infer_wScReNI_scNetworks <- function(exprMatrix, gene_peak_overlap_matrix, gene_peak_overlap_labs, nearest.neighbors.idx, 
                                        network.path, data.name, cell.index=NULL, nthread = 50, max.cell.per.batch = 10){

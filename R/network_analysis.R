@@ -1,4 +1,16 @@
-###source('/data2/jwang/Retina/RetReg/CellType/Programs/network_analysis.R')
+#' Title
+#'
+#' @param regulatory_relationships
+#' @param Kmeans_result
+#' @param TFFDR1
+#' @param TFFDR2
+#' @param ModuleFDR
+#' 
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 network_analysis <- function (regulatory_relationships, Kmeans_result, TFFDR1 = 10,
     TFFDR2 = 10, ModuleFDR = 0.05){

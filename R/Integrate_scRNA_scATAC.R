@@ -1,6 +1,6 @@
 
-
-
+#' @export
+#'
 
 Integrate_scRNA_scATAC <- function(scRNAseq, scATACseq, AnchorsDim=50, IntegratedDimensions, KNN=20, data.type='unpaired', species='mouse'){
   

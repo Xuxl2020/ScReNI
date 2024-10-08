@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param coembed
+#' @param Partial_cell
+#' @param cell.num
+#' @param data.type
+#' @param scRNA_scATAC_neighbor_undup
+#' @param cell.name
+#' @param Celltypename
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+
 Select_partial_cells_for_scNewtorks <- function(coembed, Partial_cell, cell.num, data.type='unpaired', scRNA_scATAC_neighbor_undup=NULL, cell.name=NULL, Celltypename='undup.cell.types'){
   
   if(data.type=='unpaired'){

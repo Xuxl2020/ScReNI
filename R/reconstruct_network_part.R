@@ -1,4 +1,14 @@
-###source('/data2/jwang/Retina/RetReg/CellType/Programs/reconstruct_network_part.R')
+#' Title
+#'
+#' @param GeneCor1
+#' @param Kmeans_result
+#' @param TFFdrThr1
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+
 
 get_Enriched_TFs <- function(GeneCor1, Kmeans_result, TFFdrThr1 = 2) {
   GeneCor1$TF <- factor(GeneCor1$TF)
@@ -128,6 +138,14 @@ get_Enriched_TFs <- function(GeneCor1, Kmeans_result, TFFdrThr1 = 2) {
   return(list1)
 }
 
+#' Title
+#'
+#' @param TFs_list
+#' @param Thr
+#' @return
+#' @export
+#'
+#' @examples
 
 get_regulation_of_TFs_to_modules <- function(TFs_list, Thr = 2) {
   con1 <- TFs_list[['Cor_EnTFs']]
@@ -180,6 +198,13 @@ get_regulation_of_TFs_to_modules <- function(TFs_list, Thr = 2) {
   return(TFs_list)
 }
 
+#' Title
+#'
+#' @param TFs_list
+#' @return
+#' @export
+#'
+#' @examples
 
 get_partial_regulations <- function(TFs_list) {
   con1 <- TFs_list[['FOSF_RegMTF_Cor_EnTFs']]
@@ -197,6 +222,15 @@ get_partial_regulations <- function(TFs_list) {
   return(TFs_list)
 }
 
+#' Title
+#'
+#' @param TFs_list
+#' @param Kmeans_result
+#' @param ModuleThr1
+#' @return
+#' @export
+#'
+#' @examples
 
 merge_Module_Regulations <- function(TFs_list, Kmeans_result, ModuleThr1 = 0.05) {
   TF1 <- Kmeans_result

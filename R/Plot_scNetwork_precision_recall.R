@@ -1,6 +1,18 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Plot_scNetwork_precision_recall.R')
-###Calculate the precision and recall of single-cell specific network
 
+#' Title
+#'
+#' @param CSNall_precision_recall
+#' @param scNet_precision_recall_top
+#' @param width
+#' @param height
+#' @param values
+#' @param path
+#' @param data.name
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Plot_scNetwork_precision_recall <- function(CSNall_precision_recall, scNet_precision_recall_top, width=7, height=5, values, path, data.name){
   

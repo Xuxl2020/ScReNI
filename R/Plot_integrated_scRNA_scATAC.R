@@ -1,4 +1,16 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Plot_integrated_scRNA_scATAC.R')
+#' Title
+#'
+#' @param coembed
+#' @param figure.folder
+#' @param data.name
+#' @param data.type
+#' @param groups
+#' @param genes
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Plot_integrated_scRNA_scATAC <- function(coembed, figure.folder=result.path, data.name, data.type='unpaired', groups=c('datatypes', 'samples', 'celltypes'), genes='Rlbp1'){
   

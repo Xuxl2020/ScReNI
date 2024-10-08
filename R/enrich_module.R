@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param Kmeans_result
+#' @param org.db
+#' @param enrich.db
+#' @param fun_num
+#' @param pvalueCutoff
+#' @param use_internal_data
+#' @param organism
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+
 enrich_module <- function(Kmeans_result, org.db, enrich.db,fun_num = 5,
                           pvalueCutoff = 0.05, use_internal_data = TRUE, organism = NULL) {
   all_gene <- Kmeans_result

@@ -1,4 +1,14 @@
-###combine single-cell regulatory networks from wScReNI
+
+#' combine single-cell regulatory networks from wScReNI
+#'
+#' @param sub.scatac.top
+#' @param network.path
+#' @param cell.index
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Combine_wScReNI_scNetworks <- function(sub.scatac.top, network.path, cell.index=NULL){
 

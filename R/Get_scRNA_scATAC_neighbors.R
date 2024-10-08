@@ -1,4 +1,14 @@
-###source('/data2/jiewang/Bioinformatics/Networks/SingleCnetwork/Programs/Get_scRNA_scATAC_neighbors.R')
+
+#' Title
+#'
+#' @param coembed
+#' @param celltypes
+#' @param datatypes
+#' 
+#' @return
+#' @export
+#'
+#' @examples
 
 Get_scRNA_scATAC_neighbors <- function(coembed, celltypes='celltypes', datatypes='datatypes'){
   umap.embeddings <- coembed@reductions$umap@cell.embeddings

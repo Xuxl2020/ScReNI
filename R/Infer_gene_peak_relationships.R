@@ -1,3 +1,23 @@
+#' Title
+#'
+#' @param gtf_data
+#' @param scrna
+#' @param scatac
+#' @param motif_database
+#' @param motif_pwm
+#' @param genome_database
+#' @param gene_name_type
+#' @param upstream_len
+#' @param downstream_len
+#' @param threshold
+#' @param nthread
+#' @param pvalue
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+
 Infer_gene_peak_relationships <- function(gtf_data, scrna, scatac, motif_database, 
          motif_pwm, genome_database, gene_name_type = 'symbol', upstream_len = 1000*250, 
          downstream_len = 1000*250, threshold = 0.1, nthread = 20, pvalue = 5^(-4) ) {

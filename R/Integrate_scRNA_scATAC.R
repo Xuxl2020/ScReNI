@@ -1,14 +1,15 @@
-#' Title
+
+#' integrate scRNA-seq and scATAC-seq
 #'
-#' @param scRNAseq
-#' @param scATACseq
-#' @param AnchorsDim
-#' @param IntegratedDimensions
-#' @param KNN
-#' @param data.type
-#' @param species
+#' @param scRNAseq A Seurat object 
+#' @param scATACseq A Seurat object with gene activity matrix 
+#' @param AnchorsDim Which dimensions to run FindTransferAnchors function 
+#' @param IntegratedDimensions Which dimensions to integrate scRNA-seq and scATAC-seq
+#' @param KNN How many neighbors to use when running FindNeighbors function
+#' @param data.type Select the paired or unpaired scRNA-seq and scATAC-seq data
+#' @param species Which species type
 #' 
-#' @return
+#' @return A Seurat object 
 #' @export
 #'
 #' @examples
@@ -18,17 +19,7 @@ Integrate_scRNA_scATAC <- function(scRNAseq, scATACseq, AnchorsDim=50, Integrate
   if(data.type=='unpaired'){
     print("Step 1.1: integrate unpaired scRNA-seq and scATAC-seq")
     HarmonyDim = IntegratedDimensions
-    library(Signac) ## 1.10.0
-    library(SeuratObject) ## remotes::install_version("SeuratObject", "5.0.1", repos = c("https://satijalab.r-universe.dev", getOption("repos")))
-    library(Seurat) ## remotes::install_version("Seurat", "5.0.1", repos = c("https://satijalab.r-universe.dev", getOption("repos")))
-    library(Matrix) ## remotes::install_version("Matrix", version = "1.6-5")
-    library(harmony) ## remotes::install_version("harmony", version = "0.1.1")
-    library(sctransform) ## remotes::install_version("sctransform", version = "0.4.1")
-    library(GenomeInfoDb)
-    library(EnsDb.Mmusculus.v79)
-    library(ggplot2)
-    library(patchwork)
-    library(future)
+    
     plan("multisession", workers = 4)
     options(future.globals.maxSize = 100000 * 1024^2)    
     

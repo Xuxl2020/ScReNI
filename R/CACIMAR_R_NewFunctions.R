@@ -6,26 +6,22 @@ Str_to_GR <- function(x){
   e = as.numeric(sapply(sp,function(x) x[[3]]))
   GR_out = GRanges(chr,IRanges(s,e))
   return(GR_out)
-}
-                        
+}                       
 #' @export
 Seqnames <- function(x){
   out= as.character(seqnames(x))
   return(out)
-}
-                        
+}                       
 #' @export
 Start <- function(x){
   out= as.numeric(start(x))
   return(out)
-}
-                        
+}                      
 #' @export
 End <- function(x){
   out= as.numeric(end(x))
   return(out)
-}
-                        
+}                     
 #' @export
 Must_to_GR <- function(x){
   library('pbapply')
@@ -43,8 +39,17 @@ Must_to_GR <- function(x){
   return(GR_out)
 }
                      
+#' Select the motif related to the input genes
+#' @description Select the motif related to the input genes. Genes used here
+#' should be ENSEMBEL ID.
+#' @param motif motif file, Tranfac201803_Mm_MotifTFsF for mouse and motif = Tranfac201803_Hs_MotifTFsF for human
+#' or you can upload your motif database, but the format should be the same as our built-in motif database.
+#' @param gene character, indicating genes used to filter motif. You can use
+#' differentially expressed genes, or use expressed genes.
+#'
+#' @return return filtered motif                    
 #' @export
-motifs_select <- function(motif,gene){
+motifs_select <- function(motif, gene){
   index <- c()
   if (stringr::str_sub(gene[1],1,3)=='ENS') {
     col_idx = 5
@@ -77,8 +82,8 @@ motifs_select <- function(motif,gene){
 #' @export
 #'
 #' @examples
-identify_region_tfs <- function(GR,gene.use,motifdb,
-                                pvalue.cutoff = 5e-05,BSdb){
+identify_region_tfs <- function(GR, gene.use, motifdb,
+                                pvalue.cutoff = 5e-05, BSdb){
   motif_use = motifs_select(motifdb,gene.use)
   PWM = Transfac_PWMatrixList
   PWM = PWM[motif_use$Accession]
@@ -98,10 +103,9 @@ identify_region_tfs <- function(GR,gene.use,motifdb,
   }
   regulation <- data.frame('TF'=enriched_tf,'Target'=names(enriched_tf))
   return(regulation)
-}
-                     
+}                   
 #' @export
-overlap_peak_motif <- function(peak,motif,motifdb){
+overlap_peak_motif <- function(peak, motif, motifdb){
   overlaped = findOverlaps(peak,motif)
   peak_motif = cbind(as.data.frame(peak[overlaped@from]),as.data.frame(motif[overlaped@to]))
   peak_motif$TF = motifdb[match(peak_motif$motifs,motifdb$Accession),4]
@@ -114,8 +118,7 @@ make_tf_target <- function(atac_out){
   tf = paste0(tf,'#',atac_out$symbol)
   tf_target = unlist(map(tf,~paste_gene(.x)))
   return(tf_target)
-}
-                     
+}                     
 #' @export
 paste_gene <- function(gene){
   tf = strsplit(gene,'#')[[1]][1]
@@ -133,7 +136,7 @@ paste_gene <- function(gene){
 #' @export
 #'
 #' @examples
-filter_regulation_fimo <- function(fimo_regulation,regulatory_relationships){
+filter_regulation_fimo <- function(fimo_regulation, regulatory_relationships){
   if (!'TF' %in% colnames(regulatory_relationships)) {
     stop('regulatory_relationships should contain "TF" column')
   }
@@ -150,8 +153,7 @@ filter_regulation_fimo <- function(fimo_regulation,regulatory_relationships){
   regulation_pair <- paste(regulatory_relationships[,1],regulatory_relationships[,4])
   regulation1 <- regulatory_relationships[regulation_pair %in% fimo_pair,]
   return(regulation1)
-}
-                     
+}                    
 #' @export
 split_motif <- function(motif){
   gene1 <- strsplit(motif[5],';')[[1]]

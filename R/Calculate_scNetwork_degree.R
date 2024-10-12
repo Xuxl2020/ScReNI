@@ -1,12 +1,12 @@
 #' Title
 #'
-#' @param scNetworks
-#' @param top
-#' @param cell_type_annotation
-#' @param ntype
-#' @param column_name
+#' @param scNetworks list, each list is a network of the corresponding single cell
+#' @param top vector, number of regulation pairs for each cell 
+#' @param cell_type_annotation character, name of cell type
+#' @param ntype integer, number of cell type
+#' @param column_name character, column name of cell type
 #' 
-#' @return
+#' @return a list
 #' @export
 #'
 #' @examples

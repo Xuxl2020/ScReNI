@@ -29,9 +29,6 @@ calculate_scNetwork_degree <- function(scNetworks, top, cell_type_annotation, nt
     cell_num <- length(scNet_list)
     weights <- scNet_list
     
-    # Calculate number of nonzero pairs
-    nonzero_num <- sapply(scNetworks[[1]], count_nonzero)
-    
     # Initialize matrices
     indegree <- matrix(0, nrow(weights[[1]]), cell_num)
     outdegree <- matrix(0, nrow(weights[[1]]), cell_num)

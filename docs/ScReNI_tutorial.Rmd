@@ -84,7 +84,6 @@ Seurat objects and intermediate files can be accessed and downloaded through the
 Please ensure that the Seurat object is properly formatted and includes all necessary metadata for accurate analysis.
 
 ```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=16}
-
 # Define data information
 data.name = 'mmRetina_RPCMG'
 species = 'mouse'
@@ -205,8 +204,39 @@ wScReNI.weights <- Infer_wScReNI_scNetworks(sub.scrna.top, gene_peak_overlap_mat
 wScReNI.weights <- Combine_wScReNI_scNetworks(sub.scrna.top, network.path)
 
 ```
+# Step 3: evaluation of the precision and recall on regulatory networks
+ChIP-atlas was used to assess the inferred regulatory relationships. This dataset serves as a valuable reference for evaluating the performance of different network inference methods. Precision and recall serve as metrics for evaluating the performance of different single-cell regulatory network inference methods.
 
-# Step 3: perform cell clustering based on single cell-specific networks
+``` r
+# Read the relationships of gene ID and gene symbol based on species
+Gene_gtf_information <- 'gtf_region.10X_Mouse_ref'
+ChIP_atlas <- 'mmp9.TSV.5kb_TF_target.df'
+
+gtf_regions <- read.table(paste0('refer/', Gene_gtf_information, ".txt"), sep = "\t", header = T)
+gene_id_gene_name_pair <- Deal_gene_information(gtf_regions)
+
+# Read TF-target pairs from ChIP Atlas
+TF_target <-read.table(paste0('refer/', ChIP_atlas, ".txt"), sep="\t")
+TF_target_pair <- unique(paste(TF_target[, 1], TF_target[, 2], sep="_"))
+
+```
+
+```r
+# For example, we infer scNetworks using CSN, CeSpGRN, LIONESS, kScReNI, and wScReNI.
+# make sure the first element of scNetworks is from CSN
+scNetworks <- list(CSN, CeSpGRN.weights, LIONESS.weights, kScReNI.weights, wScReNI.weights)
+names(scNetworks) <- c('CSN', 'CeSpGRN', 'LIONESS', 'kScReNI', 'wScReNI')
+
+# Set the parameters
+top_number = c(1000, seq(2000, 10000, by=2000), 20000)
+
+# Calculate the precision and recall
+scNetworks_precision_recall <- Calculate_scNetwork_precision_recall(scNetworks, TF_target_pair, top_number)
+scNetworks_precision_recall_noCSN <- scNetworks_precision_recall[-1]
+scNetworks_precision_recall_top <- Calculate_scNetwork_precision_recall_top(scNetworks_precision_recall_noCSN, top_number)
+
+```
+# Step 4: perform cell clustering based on single cell-specific networks
 For the purpose of network-based cell clustering, we calculated gene degrees derived from cell-specific networks. To evaluate the influence of the number of pairwise relationships between TFs and target genes, we applied diverse thresholds to the ranked weights.
 
 ```{r, message=FALSE, warning=FALSE}

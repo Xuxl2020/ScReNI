@@ -1,6 +1,6 @@
 #' Title
 #'
-#' @param scNetworks list, each list is a network of the corresponding single cell
+#' @param scNetworks list, each list is a list of cell-specific networks, e.g. ‘scNetworks’ contains two cell-specific networks, one inferred from kScReNI and the other from wScReNI.  
 #' @param top vector, number of regulation pairs for each cell 
 #' @param cell_type_annotation character, name of cell type
 #' @param ntype integer, number of cell type

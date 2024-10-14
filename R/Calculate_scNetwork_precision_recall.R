@@ -1,8 +1,8 @@
 
 #' Calculate the precision and recall of single-cell specific network
 #'
-#' @param scNetworks
-#' @param TF_target_pair
+#' @param scNetworks list, each list is a list of cell-specific networks, e.g. ‘scNetworks’ contains two cell-specific networks, one inferred from kScReNI and the other from wScReNI. 
+#' @param TF_target_pair 
 #' @param top_number
 #' @param gene_id_gene_name_pair
 #' @param gene_name_type
